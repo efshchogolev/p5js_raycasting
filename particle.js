@@ -101,16 +101,17 @@ class Particle {
     for (let ray of this.rays) {
       // Проходим по всем лучам
       let points = [] // Массив точек пересечения луча со стенами
-      let wallAtt = 0
+      // let wallAtt = 0
       for (let wall of walls) {
         // console.log(wallAtt, wall.att)
         // Проходим по всем стенам
         const pt = ray.cast(wall) // Ищем точку пересечения луча со стеной
         if (pt) {
           points.push({ point: pt, wall })
-          wallAtt -= wall.att // Если точка существует - добавляем в массив
+          // wallAtt -= wall.att // Если точка существует - добавляем в массив
         }
       }
+
       if (points) {
         points.sort((a, b) => {
           // Если точки существуют - сортируем их по приближённости к частице
@@ -127,6 +128,30 @@ class Particle {
             dist(this.pos.x, this.pos.y, points[0].point.x, points[0].point.y),
             0
           )
+        } else {
+          let entersectPoint = 0
+          let distBeforeIntersect = 0
+          let distAfterIntersect = 0
+          // let wallAttenuation = 0
+          for (let i = 0; i < points.length; i++) {
+            if (i === 0) {
+              entersectPoint = points[i]
+              distBeforeIntersect = dist(this.pos, points[i])
+              this.attenuate(ray, 0, distBeforeIntersect, 0)
+            } else {
+              distAfterIntersect = dist(entersectPoint, points[i])
+              // console.log(entersectPoint.wall)
+              // wallAttenuation -= entersectPoint.wall.att
+              this.attenuate(
+                ray,
+                distBeforeIntersect,
+                distAfterIntersect,
+                -entersectPoint.wall.att
+              )
+              entersectPoint = points[i]
+              distBeforeIntersect = distAfterIntersect
+            }
+          }
         }
         // if (points.length > 1) {
         //   for (let i = 0; i < points.length - 1; i++) {
@@ -191,86 +216,85 @@ class Particle {
         // }
 
         //рисование точек
-        else
-          for (let i = 0; i < ray.points.length; i++) {
-            if (i === 0 && ray.points[0]) {
-              stroke(146, 246, 77, 200) //-45
-              line(this.pos.x, this.pos.y, ray.points[0].x, ray.points[0].y)
-            } else {
-              if (i === 1 && ray.points[1]) {
-                stroke(175, 246, 75, 200) //-50
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 2 && ray.points[2]) {
-                stroke(204, 247, 76, 200) //-55
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 3 && ray.points[3]) {
-                stroke(232, 247, 76, 200) //-60
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 4 && ray.points[4]) {
-                stroke(249, 234, 76, 200) //-65
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 5 && ray.points[5]) {
-                stroke(250, 206, 76, 200) //-70
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 6 && ray.points[6]) {
-                stroke(250, 177, 76, 200) //-75
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 7 && ray.points[7]) {
-                stroke(252, 149, 76, 200) //-80
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
-              if (i === 8 && ray.points[8]) {
-                stroke(252, 120, 76, 200)
-                line(
-                  ray.points[i - 1].x,
-                  ray.points[i - 1].y,
-                  ray.points[i].x,
-                  ray.points[i].y
-                )
-              }
+        for (let i = 0; i < ray.points.length; i++) {
+          if (i === 0 && ray.points[0]) {
+            stroke(146, 246, 77, 200) //-45
+            line(this.pos.x, this.pos.y, ray.points[0].x, ray.points[0].y)
+          } else {
+            if (i === 1 && ray.points[1]) {
+              stroke(175, 246, 75, 200) //-50
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 2 && ray.points[2]) {
+              stroke(204, 247, 76, 200) //-55
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 3 && ray.points[3]) {
+              stroke(232, 247, 76, 200) //-60
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 4 && ray.points[4]) {
+              stroke(249, 234, 76, 200) //-65
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 5 && ray.points[5]) {
+              stroke(250, 206, 76, 200) //-70
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 6 && ray.points[6]) {
+              stroke(250, 177, 76, 200) //-75
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 7 && ray.points[7]) {
+              stroke(252, 149, 76, 200) //-80
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
+            }
+            if (i === 8 && ray.points[8]) {
+              stroke(252, 120, 76, 200)
+              line(
+                ray.points[i - 1].x,
+                ray.points[i - 1].y,
+                ray.points[i].x,
+                ray.points[i].y
+              )
             }
           }
+        }
       }
       ray.points = []
     }
