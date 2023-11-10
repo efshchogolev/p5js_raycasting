@@ -22,6 +22,7 @@ function setup() {
   walls.push(new Boundary(0, height, 0, 0, -3))
   particles.push(new Particle())
   // particles.push(new Particle())
+  // particles.push(new Particle())
   // for (let particle of particles) {
   //   // particle.show()
   // }
