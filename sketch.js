@@ -6,20 +6,22 @@ function setup() {
   createCanvas(1000, 1000)
 
   // Создание случайных стен
-  for (let i = 0; i < 5; i++) {
-    let x1 = random(width)
-    let x2 = random(width)
-    let y1 = random(height)
-    let y2 = random(height)
-    walls[i] = new Boundary(x1, y1, x2, y2, -3)
-    // console.log(new Boundary(x1, y1, x2, y2, -3))
-  }
+  // for (let i = 0; i < 5; i++) {
+  //   let x1 = random(width)
+  //   let x2 = random(width)
+  //   let y1 = random(height)
+  //   let y2 = random(height)
+  //   walls[i] = new Boundary(x1, y1, x2, y2, -3)
+  //   // console.log(new Boundary(x1, y1, x2, y2, -3))
+  // }
+
+  walls.push(new Boundary(700, 100, 700, 900, -3))
 
   // Создание границ
-  walls.push(new Boundary(0, 0, width, 0, -3))
-  walls.push(new Boundary(width, 0, width, height, -3))
-  walls.push(new Boundary(width, height, 0, height, -3))
-  walls.push(new Boundary(0, height, 0, 0, -3))
+  walls.push(new Boundary(-100, -100, width + 100, -100, -3))
+  walls.push(new Boundary(width + 100, -100, width + 100, height + 100, -3))
+  walls.push(new Boundary(width + 100, height + 100, -100, height + 100, -3))
+  walls.push(new Boundary(-100, height + 100, -100, -100, -3))
   particles.push(new Particle())
   // particles.push(new Particle())
   // particles.push(new Particle())

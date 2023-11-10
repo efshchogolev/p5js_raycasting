@@ -5,7 +5,7 @@ class Particle {
 
     this.rays = []
 
-    for (let a = 0; a < 360; a += 1) {
+    for (let a = 0; a < 360; a += 36) {
       // луч через каждые 10 градусов
       this.rays.push(new Ray(this.pos, radians(a)))
     }
@@ -23,7 +23,7 @@ class Particle {
     ellipse(this.pos.x, this.pos.y, this.diameter)
   }
 
-  attenuate(ray, startDist = 0, endDist = 700, obstAtt = 0) {
+  attenuate(ray, startDist, endDist, obstAtt = 0) {
     // const length = p5.Vector.dist(this.pos.x, this.pos.y, width, height)
     // for (let ray of this.rays) {
     // let i = startDist
@@ -32,54 +32,54 @@ class Particle {
       let EIRP = 10
       let RSSI = EIRP - FSPL - obstAtt
       let magnitude = sqrt(ray.dir.x * ray.dir.x + ray.dir.y * ray.dir.y)
-      let point = { x: 0, y: 0, r: 0, g: 0, b: 0 }
-      point.x = this.pos.x + (ray.dir.x / magnitude) * i
-      point.y = this.pos.y + (ray.dir.y / magnitude) * i
+      let point = { point: { x: 0, y: 0 }, r: 0, g: 0, b: 0 }
+      point.point.x = this.pos.x + (ray.dir.x / magnitude) * i
+      point.point.y = this.pos.y + (ray.dir.y / magnitude) * i
       if (Math.round(RSSI) == -45) {
         point.r = 146
-        proint.g = 246
+        point.g = 246
         point.b = 77
-        ray.points[0] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -50) {
         point.r = 175
-        proint.g = 246
+        point.g = 246
         point.b = 75
-        ray.points[1] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -55) {
         point.r = 204
-        proint.g = 247
+        point.g = 247
         point.b = 76
-        ray.points[2] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -60) {
         point.r = 232
-        proint.g = 247
+        point.g = 247
         point.b = 76
-        ray.points[3] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -65) {
         point.r = 249
-        proint.g = 234
+        point.g = 234
         point.b = 76
-        ray.points[4] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -70) {
         point.r = 250
-        proint.g = 206
+        point.g = 206
         point.b = 76
-        ray.points[5] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -75) {
         point.r = 250
-        proint.g = 177
+        point.g = 177
         point.b = 76
-        ray.points[6] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -80) {
         point.r = 252
-        proint.g = 149
+        point.g = 149
         point.b = 76
-        ray.points[7] = point
+        ray.points.push(point)
       } else if (Math.round(RSSI) == -85) {
         point.r = 252
-        proint.g = 120
+        point.g = 120
         point.b = 76
-        ray.points[8] = point
+        ray.points.push(point)
       }
       // i++
     }
@@ -140,6 +140,7 @@ class Particle {
       }
 
       if (points) {
+        //TODO - возможно сортировку нужно использовать потом
         points.sort((a, b) => {
           // Если точки существуют - сортируем их по приближённости к частице
           return (
@@ -163,6 +164,7 @@ class Particle {
           for (let i = 0; i < points.length; i++) {
             if (i === 0) {
               entersectPoint = points[i]
+              ray.points.push(entersectPoint)
               distBeforeIntersect = dist(this.pos, points[i])
               this.attenuate(ray, 0, distBeforeIntersect, 0)
               // console.log(ray.points)
@@ -177,6 +179,7 @@ class Particle {
                 wallAttenuation
               )
               entersectPoint = points[i]
+              ray.points.push(entersectPoint)
               distBeforeIntersect = distAfterIntersect
             }
           }
@@ -243,86 +246,64 @@ class Particle {
         //   )
         // }
 
+        // сортировка точек цвета с пересечением
+        ray.points.sort((a, b) => {
+          // console.log(a, b)
+          // console.log(a.point.x, a.point.y, b.point.x, b.point.y)
+          return (
+            dist(this.pos.x, this.pos.y, a.point.x, a.point.y) -
+            dist(this.pos.x, this.pos.y, b.point.x, b.point.y)
+          )
+        })
+
+        let editedPoints = ray.points.map((point, index) => {
+          if (index === 0 && !point.r) {
+            point.r = 146
+            point.g = 246
+            point.b = 77
+            return point
+          }
+          if (!point.r) {
+            point.r = ray.points[index - 1].r
+            point.g = ray.points[index - 1].g
+            point.b = ray.points[index - 1].b
+            return point
+          }
+          return point
+        })
         //рисование линий
-        for (let i = 0; i < ray.points.length; i++) {
-          if (i === 0 && ray.points[0]) {
-            stroke(146, 246, 77, 200) //-45
-            line(this.pos.x, this.pos.y, ray.points[0].x, ray.points[0].y)
+        for (let i = 0; i <= editedPoints.length; i++) {
+          if (i === 0) {
+            // console.log(i)
+            // console.log(editedPoints)
+            // console.log(editedPoints[i].r, editedPoints[i].g, editedPoints[i].b)
+            push()
+            stroke(editedPoints[i].r, editedPoints[i].g, editedPoints[i].b, 200) //-45
+            strokeWeight(5)
+            line(
+              this.pos.x,
+              this.pos.y,
+              editedPoints[i].point.x,
+              editedPoints[i].point.y
+            )
+            pop()
+          } else if (i === editedPoints.length) {
+            // return
+            break
           } else {
-            if (i === 1 && ray.points[1] && ray.points[0]) {
-              stroke(175, 246, 75, 200) //-50
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 2 && ray.points[2] && ray.points[1]) {
-              stroke(204, 247, 76, 200) //-55
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 3 && ray.points[3] && ray.points[2]) {
-              stroke(232, 247, 76, 200) //-60
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 4 && ray.points[4] && ray.points[3]) {
-              stroke(249, 234, 76, 200) //-65
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 5 && ray.points[5] && ray.points[4]) {
-              stroke(250, 206, 76, 200) //-70
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 6 && ray.points[6] && ray.points[5]) {
-              stroke(250, 177, 76, 200) //-75
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 7 && ray.points[7] && ray.points[6]) {
-              stroke(252, 149, 76, 200) //-80
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
-            if (i === 8 && ray.points[8] && ray.points[7]) {
-              stroke(252, 120, 76, 200)
-              line(
-                ray.points[i - 1].x,
-                ray.points[i - 1].y,
-                ray.points[i].x,
-                ray.points[i].y
-              )
-            }
+            push()
+            strokeWeight(20)
+            stroke(editedPoints[i].r, editedPoints[i].g, editedPoints[i].b, 200)
+            line(
+              editedPoints[i - 1].point.x,
+              editedPoints[i - 1].point.y,
+              editedPoints[i].point.x,
+              editedPoints[i].point.y
+            )
+            pop()
           }
         }
+        editedPoints = []
       }
       ray.points = []
     }
