@@ -16,6 +16,7 @@ function setup() {
   // }
 
   walls.push(new Boundary(700, 100, 700, 900, -3))
+  // walls.push(new Boundary(500, 300, 500, 700, -3))
 
   // Создание границ
   walls.push(new Boundary(-100, -100, width + 100, -100, -3))
