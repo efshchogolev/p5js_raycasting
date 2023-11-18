@@ -15,9 +15,9 @@ function setup() {
     // console.log(new Boundary(x1, y1, x2, y2, 3))
   }
 
-  walls.push(new Boundary(700, 100, 700, 900, 3))
-  walls.push(new Boundary(100, 700, 900, 700, 3))
-  walls.push(new Boundary(600, 300, 600, 700, 3))
+  // walls.push(new Boundary(700, 100, 700, 900, 3))
+  // walls.push(new Boundary(100, 700, 900, 700, 3))
+  // walls.push(new Boundary(600, 300, 600, 700, 3))
 
   // Создание границ
   walls.push(new Boundary(-100, -100, width + 100, -100, 3))
