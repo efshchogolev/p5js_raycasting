@@ -27,6 +27,7 @@ function setup() {
   particles.push(new Particle())
   // particles.push(new Particle())
   // particles.push(new Particle())
+  // particles.push(new Particle())
   // for (let particle of particles) {
   //   // particle.show()
   // }

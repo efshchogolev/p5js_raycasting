@@ -27,74 +27,36 @@ class Particle {
   }
 
   attenuate(ray, startDist, endDist, obstAtt = 0) {
-    // const length = p5.Vector.dist(this.pos.x, this.pos.y, width, height)
-    // for (let ray of this.rays) {
-    // let i = startDist
+    const calculateColor = (RSSI) => {
+      const colors = [
+        { r: 252, g: 120, b: 76 },
+        { r: 252, g: 149, b: 76 },
+        { r: 250, g: 177, b: 76 },
+        { r: 250, g: 206, b: 76 },
+        { r: 249, g: 234, b: 76 },
+        { r: 232, g: 247, b: 76 },
+        { r: 204, g: 247, b: 76 },
+        { r: 175, g: 246, b: 75 },
+        { r: 146, g: 246, b: 77 },
+      ]
+
+      const index = Math.floor((RSSI + 85) / 5)
+      return colors[index] || { r: 0, g: 0, b: 0 }
+    }
+
     for (let i = startDist; i < endDist; i++) {
-      let FSPL = 20 * Math.log(2.4) + 10 * 2 * Math.log(i / 3) + 1 - 24
-      let EIRP = 10
-      let RSSI = EIRP - FSPL - obstAtt
-      let magnitude = sqrt(ray.dir.x * ray.dir.x + ray.dir.y * ray.dir.y)
-      let point = { point: { x: 0, y: 0 }, r: 0, g: 0, b: 0 }
+      const FSPL = 20 * Math.log(2.4) + 10 * 2 * Math.log(i / 3) + 1 - 24
+      const EIRP = 10
+      const RSSI = EIRP - FSPL - obstAtt
+      const magnitude = Math.sqrt(ray.dir.x * ray.dir.x + ray.dir.y * ray.dir.y)
+      const point = { point: { x: 0, y: 0 }, r: 0, g: 0, b: 0 }
       point.point.x = this.pos.x + (ray.dir.x / magnitude) * i
       point.point.y = this.pos.y + (ray.dir.y / magnitude) * i
 
-      if (-85 <= Math.floor(RSSI) && Math.floor(RSSI) <= -80 && point) {
-        point.r = 252
-        point.g = 120
-        point.b = 76
-        // ray.points.push(point)
-        ray.points[8] = point
-      } else if (-80 <= Math.floor(RSSI) && Math.floor(RSSI) <= -75 && point) {
-        point.r = 252
-        point.g = 149
-        point.b = 76
-        // console.log(point)
-        // ray.points.push(point)
-        ray.points[7] = point
-      } else if (-75 <= Math.floor(RSSI) && Math.floor(RSSI) <= -70 && point) {
-        point.r = 250
-        point.g = 177
-        point.b = 76
-        ray.points[6] = point
-      } else if (-70 <= Math.floor(RSSI) && Math.floor(RSSI) <= -65 && point) {
-        point.r = 250
-        point.g = 206
-        point.b = 76
-        // ray.points.push(point)
-        ray.points[5] = point
-      } else if (-65 <= Math.floor(RSSI) && Math.floor(RSSI) <= -60 && point) {
-        point.r = 249
-        point.g = 234
-        point.b = 76
-        // ray.points.push(point)
-        ray.points[4] = point
-      } else if (-60 <= Math.floor(RSSI) && Math.floor(RSSI) <= -55 && point) {
-        point.r = 232
-        point.g = 247
-        point.b = 76
-        // ray.points.push(point)
-        ray.points[3] = point
-      } else if (-55 <= Math.floor(RSSI) && Math.floor(RSSI) <= -50 && point) {
-        point.r = 204
-        point.g = 247
-        point.b = 76
-        // ray.points.push(point)
-        ray.points[2] = point
-      } else if (-50 <= Math.floor(RSSI) && Math.floor(RSSI) <= -45 && point) {
-        point.r = 175
-        point.g = 246
-        point.b = 75
-        // ray.points.push(point)
-        ray.points[1] = point
-      } else if (-45 <= Math.floor(RSSI) && point) {
-        point.r = 146
-        point.g = 246
-        point.b = 77
-        // ray.points.push(point)
-        ray.points[0] = point
+      if (-85 <= Math.floor(RSSI) && Math.floor(RSSI) <= -45 && point) {
+        const color = calculateColor(Math.floor(RSSI))
+        ray.points[Math.floor((RSSI + 85) / 5)] = { ...point, ...color }
       }
-      // i++
     }
     return ray.points
   }
@@ -153,9 +115,6 @@ class Particle {
                 element.point.x,
                 element.point.y
               ) + distBeforeIntersect
-            // console.log(distBeforeIntersect, '- dbi')
-            // console.log(distAfterIntersect, '- dai')
-            // console.log(distForCalc, '- dfc')
             entersectPoint = element
             entersectPoints.push(entersectPoint)
             this.attenuate(
@@ -166,11 +125,7 @@ class Particle {
             )
           }
         })
-        // }
         //объединение точек пересечения и изменения цвета
-
-        // ray.points = ray.points.concat(entersectPoints)
-        // console.log(ray.points)
         // сортировка точек цвета с пересечением
         ray.points.sort((a, b) => {
           if (a && b) {
@@ -183,21 +138,7 @@ class Particle {
 
         // даём точкам пересечения цвета точек перелома, которые идут до точек пересечения
         let editedPoints = ray.points
-        //   .map((point, index) => {
-        //   if (index === 0 && !point.r) {
-        //     point.r = 146
-        //     point.g = 246
-        //     point.b = 77
-        //     return point
-        //   }
-        //   if (!point.r) {
-        //     point.r = ray.points[index - 1].r
-        //     point.g = ray.points[index - 1].g
-        //     point.b = ray.points[index - 1].b
-        //     return point
-        //   }
-        //   return point
-        // })
+
         //рисование линий
         for (let i = 0; i < editedPoints.length; i++) {
           if (editedPoints[i]) {
